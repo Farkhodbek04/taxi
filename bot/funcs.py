@@ -7,7 +7,7 @@ async def refresh_groups_cache(client: telethon.TelegramClient):
     
     groups_cache = {}
     try:
-        client.start()
+        await client.start()
         async for dialog in client.iter_dialogs():
             entity = dialog.entity
             # Include meagagroups and normal groups

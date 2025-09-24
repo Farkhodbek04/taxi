@@ -24,30 +24,42 @@ async def handler(event: telethon.events.newmessage.NewMessage.Event):
         chat_id = event.chat_id
         message_text = event.message.message
         sender_id = event.sender_id
+        sender = sender_cache.get(sender_id)
+        des_id = int(dest_ids[1])
         if str(sender_id).endswith("2227900964"):
             message_text.replace("👤", "")
-            await client.send_message(
-                    dest_ids[1],
-                    message=message_text,
-                    parse_mode='html'
-                )
-        if message_text.startswith("🚕 "):
+            try:
+                await send_formatted_message(client, event, sender, des_id, message_text)
+            except FloodWaitError as e:
+                print(f"Flood wait: skipping sending for {e.seconds} seconds")
+            except Exception as e:
+                print(f"Error at this handler {e}")
+        if str(sender_id).endswith("2227900964") and message_text.startswith("🚕"):
             message_text.replace("🚕", "")
-            await client.send_message(
-                    dest_ids[1],
-                    message=message_text,
-                    parse_mode='html'
-                )
+            try:
+                await send_formatted_message(client, event, sender, des_id, message_text)
+            except FloodWaitError as e:
+                print(f"Flood wait: skipping sending for {e.seconds} seconds")
+            except Exception as e:
+                print(f"Error at this handler {e}")
+        
+        if str(sender_id).endswith("2227900964") and message_text.startswith("Xabar"):
+            message_text.replace("Xabar:", "")
+            try:
+                await send_formatted_message(client, event, sender, des_id, message_text)
+            except FloodWaitError as e:
+                print(f"Flood wait: skipping sending for {e.seconds} seconds")
+            except Exception as e:
+                print(f"Error at this handler {e}")
 
-        sender = sender_cache.get(sender_id)
         if sender is None:
             try:
                 sender = await event.get_sender()
                 if sender is not None:
                     sender_cache[sender_id] = sender
             except FloodWaitError as e:
-                print(f"Flood wait: sleeping for {e.seconds} seconds (get_sender)")
-                await asyncio.sleep(e.seconds)
+                print(f"Flood wait: sleeping for {0.5} seconds (get_sender)")
+                asyncio.sleep(0.5)
                 sender = None
             except Exception as e:
                 print(f"Error at handler (get_sender): {e}")
@@ -59,13 +71,14 @@ async def handler(event: telethon.events.newmessage.NewMessage.Event):
 
         if await is_client_request(message_text):
             if dest_ids:
-                des_id = dest_ids[0]
                 try:
-                    await send_formatted_message(client, event, sender, des_id, chat_id, message_text)
+                    await send_formatted_message(client, event, sender, des_id, message_text)
                 except FloodWaitError as e:
+                    await send_formatted_message(client, event, sender, des_id, message_text)
                     print(f"Flood wait: skipping sending for {e.seconds} seconds")
                 except Exception as e:
-                    print(f"Error at handler {e}")
+                    await send_formatted_message(client, event, sender, des_id, message_text)
+                    print(f"Error at this handler {e}")
     except Exception as e:
         print(f"Error at {inspect.currentframe().f_code.co_name}", e)
 

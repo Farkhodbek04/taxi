@@ -83,7 +83,7 @@ async def is_client_request(message:str) -> bool:
         #     await bot.send_message(SUPERADMIN, f"🚨 UserBot: {error_msg} ⚠️")
         # return False
 
-async def send_formatted_message(client, event, sender, dest_id, chat_id, message_text):
+async def send_formatted_message(client, event, sender, dest_id, message_text):
     # Build message link (only works for public groups/channels)
     if event.is_channel and isinstance(await event.get_chat(), Channel):
         chat = await event.get_chat()
@@ -114,15 +114,22 @@ async def send_formatted_message(client, event, sender, dest_id, chat_id, messag
         )
         if message_link:
             formatted_message += f"<b>Guruh: </b> <a href='{message_link}'> guruh</a>"
-
-    for des in destination_id:
-        entity = await client.get_entity(int(des))
-        print(f"Sending to {des}")
-        await client.send_message(
-            entity=entity,
-            message=formatted_message,
-            parse_mode='html'
-        )
+    asyncio.sleep(0.5)
+    entity = await client.get_entity(int(dest_id))
+    print(f"Sending to {dest_id}")
+    await client.send_message(
+        entity=entity,
+        message=formatted_message,
+        parse_mode='html'
+    )
+    # for des in destination_id:
+    #     entity = await client.get_entity(int(des))
+    #     print(f"Sending to {des}")
+    #     await client.send_message(
+    #         entity=entity,
+    #         message=formatted_message,
+    #         parse_mode='html'
+    #     )
 
 
 async def db_poller():
