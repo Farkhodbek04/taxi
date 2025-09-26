@@ -11,6 +11,7 @@ __pycache__
 .Python
 env/
 venv/
+.venv
 .DS_Store
 user_session.session
 admin_session.session
