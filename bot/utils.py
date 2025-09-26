@@ -114,7 +114,7 @@ async def send_formatted_message(client, event, sender, dest_id, message_text):
         )
         if message_link:
             formatted_message += f"<b>Guruh: </b> <a href='{message_link}'> guruh</a>"
-    asyncio.sleep(0.5)
+    await asyncio.sleep(0.5)
     entity = await client.get_entity(int(dest_id))
     print(f"Sending to {dest_id}")
     await client.send_message(

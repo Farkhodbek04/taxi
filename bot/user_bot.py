@@ -59,7 +59,7 @@ async def handler(event: telethon.events.newmessage.NewMessage.Event):
                     sender_cache[sender_id] = sender
             except FloodWaitError as e:
                 print(f"Flood wait: sleeping for {0.5} seconds (get_sender)")
-                asyncio.sleep(0.5)
+                await asyncio.sleep(0.5)
                 sender = None
             except Exception as e:
                 print(f"Error at handler (get_sender): {e}")
