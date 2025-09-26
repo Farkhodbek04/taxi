@@ -1,22 +1,26 @@
+# Base
 FROM python:3.12-slim
 
-# Set work directory
+# Runtime env (unbuffered logs, UTF-8, no .pyc files, faster pip)
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONIOENCODING=UTF-8 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1
+
+# Workdir
 WORKDIR /app
 
-# Install system dependencies (if needed)
-RUN apt-get update && apt-get install -y gcc && rm -rf /var/lib/apt/lists/*
+# System deps (keep minimal)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      gcc \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install
+# Python deps
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
 
-# Copy the rest of the code
+# App code
 COPY . .
 
-# Set environment variables (optional, for production)
-# ENV BOT_TOKEN=your_token
-# ENV SUPERADMIN=your_admin_id
-# ENV API_ID=your_api_id
-# ENV API_HASH=your_api_hash
-
-CMD ["python3", "bot/main_bot.py"]
+# Start (explicit -u for clarity)
+CMD ["python3", "-u", "bot/main_bot.py"]
