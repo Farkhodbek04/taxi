@@ -22,11 +22,18 @@ async def handler(event: telethon.events.newmessage.NewMessage.Event):
     try:
         dest_ids = list(read_db('groups_dict')['destination_id'].keys())
         chat_id = event.chat_id
-        message_text = event.message.message
-        sender_id = event.sender_id
+        message_text = str(event.message.message)
+        sender_id = str(event.sender_id)
         sender = sender_cache.get(sender_id)
         des_id = int(dest_ids[1])
-        if str(sender_id).endswith("2227900964"):
+        if sender is not None and (getattr(sender, "username", None) or "").lower() == "andijontbot":
+            try:
+                await send_formatted_message(client, event, sender, des_id, message_text)
+            except FloodWaitError as e:
+                print(f"Flood wait: skipping sending for {e.seconds} seconds")
+            except Exception as e:
+                print(f"Error at this handler {e}")
+        if sender_id.endswith("2227900964"):
             message_text.replace("👤", "")
             try:
                 await send_formatted_message(client, event, sender, des_id, message_text)
@@ -34,7 +41,7 @@ async def handler(event: telethon.events.newmessage.NewMessage.Event):
                 print(f"Flood wait: skipping sending for {e.seconds} seconds")
             except Exception as e:
                 print(f"Error at this handler {e}")
-        if str(sender_id).endswith("2227900964") and message_text.startswith("🚕"):
+        if sender_id.endswith("2227900964") and message_text.startswith("🚕"):
             message_text.replace("🚕", "")
             try:
                 await send_formatted_message(client, event, sender, des_id, message_text)
@@ -43,7 +50,7 @@ async def handler(event: telethon.events.newmessage.NewMessage.Event):
             except Exception as e:
                 print(f"Error at this handler {e}")
         
-        if str(sender_id).endswith("2227900964") and message_text.startswith("Xabar"):
+        if sender_id.endswith("2227900964") and message_text.startswith("Xabar"):
             message_text.replace("Xabar:", "")
             try:
                 await send_formatted_message(client, event, sender, des_id, message_text)
@@ -69,7 +76,7 @@ async def handler(event: telethon.events.newmessage.NewMessage.Event):
         if sender is not None and getattr(sender, "bot", False):
             return
 
-        if await is_client_request(message_text):
+        if await is_client_request(message_text, sender_id):
             if dest_ids:
                 try:
                     await send_formatted_message(client, event, sender, des_id, message_text)
@@ -88,3 +95,6 @@ async def get_available_groups():
     with open('db/all_available_groups.json', 'w', encoding='utf-8') as file:
         json.dump(groups, file, indent=4, ensure_ascii=False)
     return True
+
+# import asyncio
+# asyncio.run(get_available_groups())

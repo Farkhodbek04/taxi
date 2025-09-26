@@ -43,10 +43,12 @@ except Exception as e:
 
 
 # filter client messages
-async def is_client_request(message:str) -> bool:
+async def is_client_request(message:str, sender_id:str) -> bool:
     if message.startswith("👤"):
         return True
     
+    if sender_id.endswith("2974232716") and message.startswith("@Yoldauzbot"):
+        return True
     
     keywords = set(read_db('keywords')['keywords'])
     negatives = set(ng for ng in read_db('keywords').get('negatives', {}))
