@@ -20,12 +20,15 @@ session_lock = asyncio.Lock()
 @client.on(telethon.events.NewMessage(chats=source_id, incoming=True))
 async def handler(event: telethon.events.newmessage.NewMessage.Event):
     try:
+        if event.message.media:
+            return
         dest_ids = list(read_db('groups_dict')['destination_id'].keys())
         chat_id = event.chat_id
         message_text = str(event.message.message)
         sender_id = str(event.sender_id)
         sender = sender_cache.get(sender_id)
         des_id = int(dest_ids[1])
+        
         if sender is not None and (getattr(sender, "username", None) or "").lower() == "andijontbot":
             try:
                 await send_formatted_message(client, event, sender, des_id, message_text)

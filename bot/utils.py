@@ -41,6 +41,11 @@ except Exception as e:
     print(f"Failed to load initial db: {str(e)}")
     raise
 
+avoids = ["olamiz", "yuramiz", "оламиз", "kam", "benzin", "propan", "prapan.", "bo'sh", "кам", 
+        "бензин", "оламз", "беринг", "почталар", "yurdik", "pochtalar", "reklama", "харакатдамиз", "http", "bot", 
+        "koblt", "юрамиз", "юрамз", "berin", "xizmat", "хизмат", "sot", "murojat", "кетамис", "keta", "ola", "ола", 
+        "t.me", "hizm", "hizmat", "Bern", "ber"
+        ]
 
 # filter client messages
 async def is_client_request(message:str, sender_id:str) -> bool:
@@ -50,19 +55,20 @@ async def is_client_request(message:str, sender_id:str) -> bool:
     if sender_id.endswith("2974232716") and message.startswith("@Yoldauzbot"):
         return True
     
+    for a in avoids:
+        if a in message:
+            return False
+    
+    words = message.split()
+    if len(words) > 13:
+        return False
+    
     keywords = set(read_db('keywords')['keywords'])
     negatives = set(ng for ng in read_db('keywords').get('negatives', {}))
 
         
-    if sum(1 if val.lower() in negatives else 0 for val in message.split()) >= 1:
-        return False
-    
-    words = message.split()
-    if len(words) > 15:
-        return False
-    
-    for word in words:
-        if word.startswith("https"):
+    for val in message.split():
+        if val.lower() in negatives:
             return False
     
     if not words:
